@@ -53,11 +53,12 @@ test('hardware button press cycles call -> arrive -> finish', async () => {
 });
 
 test('cancel and CSV export', async () => {
-  const t = (await req('POST', '/api/machines/MC-03/call')).body;
+  const t = (await req('POST', '/api/machines/MC-03/call', { operator: '=HYPERLINK("http://x")' })).body;
   assert.equal((await req('POST', `/api/tickets/${t.id}/cancel`)).body.status, 'cancelled');
   const csv = await req('GET', '/api/report.csv');
   assert.match(csv.body, /Ticket,Machine/);
   assert.match(csv.body, /Needle break/);
+  assert.match(csv.body, /,"'=HYPERLINK\(""http:\/\/x""\)",/, 'formula neutralized');
 });
 
 test('config update keeps reason ids and validates machines', async () => {

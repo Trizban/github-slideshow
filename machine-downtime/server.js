@@ -156,7 +156,9 @@ function filterTickets(q) {
 }
 
 const csvCell = (v) => {
-  const s = v === null || v === undefined ? '' : String(v);
+  let s = v === null || v === undefined ? '' : String(v);
+  // Stop Excel from evaluating user-entered text (operator, note, ...) as a formula.
+  if (typeof v === 'string' && /^[=+\-@\t\r]/.test(s)) s = "'" + s;
   return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 };
 const iso = (ms) => (ms ? new Date(ms).toISOString() : '');

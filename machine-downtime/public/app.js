@@ -50,7 +50,8 @@ async function act(method, url, body, okMsg) {
     await api(method, url, body);
     if (okMsg) toast(okMsg);
     await refresh();
-  } catch (e) { toast(e.message, true); }
+    return true;
+  } catch (e) { toast(e.message, true); return false; }
 }
 
 // ---------- live timers ----------
@@ -407,8 +408,8 @@ ACTIONS.save = async () => {
   });
   const reasons = lines('#s-reasons').map((name) => ({ id: S.reasons.find((r) => r.name === name)?.id, name }));
   const settings = { waitWarnMin: $('#s-ww').value, waitAlarmMin: $('#s-wa').value, repairWarnMin: $('#s-rw').value, repairAlarmMin: $('#s-ra').value };
-  await act('PUT', '/api/config', { machines, reasons, mechanics: lines('#s-mechanics'), settings }, 'Settings saved');
-  render();
+  // On a rejected save keep the form as typed so the user can correct it.
+  if (await act('PUT', '/api/config', { machines, reasons, mechanics: lines('#s-mechanics'), settings }, 'Settings saved')) render();
 };
 
 // ---------- live connection ----------
